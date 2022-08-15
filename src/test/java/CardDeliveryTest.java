@@ -165,7 +165,7 @@ public class CardDeliveryTest {
         $("[data-test-id=city] input").setValue("Москва");
         $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
         $("[data-test-id=date] input").doubleClick().sendKeys(date);
-        $("[data-test-id=name] input").setValue("Алёна Иванова");
+        $("[data-test-id=name] input").setValue("Алена Иванова");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
         $(By.className("button")).click();
@@ -284,33 +284,33 @@ public class CardDeliveryTest {
         $x("//*[contains(text(),'недоступна')]").shouldBe(visible);
     }
 
-    @Test
-    void shouldNotValidateCityInSpecCharacters() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue("!#$%^&*");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
-        $("[data-test-id=name] input").setValue("Сергей Иванов");
-        $("[data-test-id=phone] input").setValue("+79031234567");
-        $("[data-test-id=agreement]").click();
-        $(By.className("button")).click();
+//    @Test
+//    void shouldNotValidateCityInSpecCharacters() {
+//        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+//        $("[data-test-id=city] input").setValue("!#$%^&*");
+//        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+//        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+//        $("[data-test-id=name] input").setValue("Сергей Иванов");
+//        $("[data-test-id=phone] input").setValue("+79031234567");
+//        $("[data-test-id=agreement]").click();
+//        $(By.className("button")).click();
+//
+//        $x("//*[contains(text(),'недоступна')]").shouldBe(visible);
+//    }
 
-        $x("//*[contains(text(),'недоступна')]").shouldBe(visible);
-    }
-
-    @Test
-    void shouldNotValidateCityWithNumbersAndSpecCharacters() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue("12#$34&*");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
-        $("[data-test-id=name] input").setValue("Сергей Иванов");
-        $("[data-test-id=phone] input").setValue("+79031234567");
-        $("[data-test-id=agreement]").click();
-        $(By.className("button")).click();
-
-        $x("//*[contains(text(),'недоступна')]").shouldBe(visible);
-    }
+//    @Test
+//    void shouldNotValidateCityWithNumbersAndSpecCharacters() {
+//        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+//        $("[data-test-id=city] input").setValue("12#$34&*");
+//        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+//        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+//        $("[data-test-id=name] input").setValue("Сергей Иванов");
+//        $("[data-test-id=phone] input").setValue("+79031234567");
+//        $("[data-test-id=agreement]").click();
+//        $(By.className("button")).click();
+//
+//        $x("//*[contains(text(),'недоступна')]").shouldBe(visible);
+//    }
 
     @Test
     void shouldNotValidateEmptyCity() {
