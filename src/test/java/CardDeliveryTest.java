@@ -197,7 +197,7 @@ public class CardDeliveryTest {
         $("[data-test-id=city] input").setValue("Москва");
         $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
         $("[data-test-id=date] input").doubleClick().sendKeys(date);
-        $("[data-test-id=name] input").setValue("Алена Иванова");
+        $("[data-test-id=name] input").setValue("Алёна Иванова");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
         $(By.className("button")).click();
