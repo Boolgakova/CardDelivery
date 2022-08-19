@@ -1,14 +1,13 @@
-import com.codeborne.selenide.Config;
-import com.codeborne.selenide.Configuration;
+package ru.netology.delivery.test;
+
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
+import ru.netology.delivery.data.DataGenerator;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.*;
@@ -17,18 +16,17 @@ public class CardDeliveryTest {
 
     @BeforeEach
     public void setForm() {
-        Configuration.headless = true;
+//        Configuration.headless = true;
         open("http://localhost:9999/");
         SelenideElement form = $("form");
     }
 
     @Test
     void shouldSendFormCityList() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         String myCity = "Абакан";
         $("[data-test-id=city] input").setValue("ка");
         $$(".menu-item__control").filter(exactText(myCity)).forEach(SelenideElement::click);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -38,7 +36,7 @@ public class CardDeliveryTest {
     }
 
     @Test
-    void shouldChooseDateFromCalendar(){
+    void shouldChooseDateFromCalendar() {
         $("[data-test-id=city] input").setValue("Москва");
         $(".icon").click();
         $x("//td[@data-day]//following-sibling::td/following-sibling::td").click();
@@ -47,30 +45,45 @@ public class CardDeliveryTest {
         $("[data-test-id=agreement]").click();
         $(By.className("button")).click();
 
-        $("[data-test-id=notification").shouldBe(visible, Duration.ofSeconds(17));
-
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + $(".calendar__day_state_current").getText()), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
-    void shouldSendFormPopularData() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    void shouldChooseDateFromCalendarNextMonth() {
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $(".icon").click();
+        $(By.cssSelector("[data-step=\"1\"]")).click();
+        $("[data-day]").click();
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
         $(By.className("button")).click();
 
-        $("[data-test-id=notification").shouldBe(visible, Duration.ofSeconds(17));
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + $(".calendar__day_state_current").getText()), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
+    }
+
+    @Test
+    void shouldSendFormAndShowSuccessNotificationWithDate() {
+        $("[data-test-id=city] input").setValue("Москва");
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
+        $("[data-test-id=name] input").setValue("Иван Иванов");
+        $("[data-test-id=phone] input").setValue("+79031234567");
+        $("[data-test-id=agreement]").click();
+        $(By.className("button")).click();
+
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + DataGenerator.generateDate(3, "dd.MM.yyyy")), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
     void shouldSendFormDoubleCity() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Нижний Новгород");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -81,10 +94,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormCityWithDash() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Йошкар-Ола");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -95,10 +106,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormCityWithDoubleDash() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Ростов-на-Дону");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -109,10 +118,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormCityWithYo() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Орёл");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -123,10 +130,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormFourDays() {
-        String date = LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(4, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -136,11 +141,9 @@ public class CardDeliveryTest {
     }
 
     @Test
-    void shouldSendFormNextMonth() {
-        String date = LocalDate.now().plusDays(365).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    void shouldSendFormNextYear() {
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(365, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Иван Иванов");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -151,10 +154,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormDoubleName() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Анна Мария Иванова");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -165,10 +166,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormNameWithDash() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Анна-Мария Иванова");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -179,10 +178,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormNameWithDoubleDash() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Анна-Мария Иванова-Смоленская");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -193,10 +190,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormNameWithYo() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Алёна Иванова");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -207,10 +202,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormShortName() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Ян И");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -221,10 +214,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormLongName() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Абдурахманганджи Христорождественский-Полонский");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
@@ -235,10 +226,8 @@ public class CardDeliveryTest {
 
     @Test
     void shouldSendFormNameWithIch() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         $("[data-test-id=city] input").setValue("Москва");
-        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=date] input").doubleClick().sendKeys(DataGenerator.generateDate(3, "dd.MM.yyyy"));
         $("[data-test-id=name] input").setValue("Сергей Иванович");
         $("[data-test-id=phone] input").setValue("+79031234567");
         $("[data-test-id=agreement]").click();
